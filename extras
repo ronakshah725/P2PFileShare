@@ -1,0 +1,15 @@
+			while(!me.joined){
+			System.out.println("Do you want to join the system (y/n)?");
+			String inp = sc.nextLine();
+			switch (inp) {
+			case "y":
+				
+				//start listner
+				
+				me.joined = true;
+				break;
+
+			default:
+				break;
+			}
+			}
