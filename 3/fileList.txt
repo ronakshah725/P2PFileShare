@@ -1,0 +1,4 @@
+o	o.txt
+e	e.txt
+l	l.txt
+
