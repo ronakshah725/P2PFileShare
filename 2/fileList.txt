@@ -1,4 +1,4 @@
 n	n.txt
-o	o.txt
-o	o.txt
+k	k.txt
+e	e.txt
 

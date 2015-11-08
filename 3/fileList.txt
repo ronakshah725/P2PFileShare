@@ -1,4 +1,4 @@
-o	o.txt
-e	e.txt
-l	l.txt
+a	a.txt
+d	d.txt
+n	n.txt
 

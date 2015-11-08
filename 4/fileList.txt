@@ -1,4 +1,0 @@
-g	g.txt
-a	a.txt
-b	b.txt
-

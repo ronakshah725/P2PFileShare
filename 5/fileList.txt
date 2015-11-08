@@ -1,4 +1,0 @@
-h	h.txt
-n	n.txt
-l	l.txt
-

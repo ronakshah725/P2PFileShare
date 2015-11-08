@@ -1,4 +1,4 @@
-d	d.txt
-c	c.txt
-c	c.txt
+p	p.txt
+p	p.txt
+i	i.txt
 
