@@ -1,33 +1,14 @@
-
 import java.io.Serializable;
 
-
 @SuppressWarnings("serial")
-public class Protocol implements Serializable {
-
-	long ts;
-	int hopcount;
-	String filename;
+public class Protocol implements Serializable
+{
 	String type;
-	NodeDef src;
+	Object o;
 	
-	public Protocol(NodeDef nd,String filename,long ts,int hpcnt, String type) {
-		this.src = nd;
-		this.filename=filename;
-		this.ts = ts;
-		this.hopcount = hpcnt;
+	public Protocol(String type, Object o) {
 		this.type = type;
+		this.o = o;
 	}
-/*
-public String toString(){
-	
-	return "ID:"+ id+", " +"TimeStamp:" + ts+ ", " +"Type:"+ type + "\n" ;
-//	return "ID:"+ id+", " +"TimeStamp:" + ts+ ", " +"Type:"+ type + "\n"  ;
-}
-*/	
 
 }
-
-
-
-
