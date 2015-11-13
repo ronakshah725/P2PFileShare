@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -159,7 +160,8 @@ public class Node {
 					System.out.println("In the request method for keyword");
 					// PENDING  request method
 					ArrayList<String> replies = me.search_request(keyword, me);
-					///PENDING take reply and show user // ask from where file to get// then make socket and fetching 
+					///PENDING keep check for empty reply
+					//
 					System.out.println("Following Machines have the files : ");
 					for (String string : replies) {
 						System.out.println(string);
@@ -232,7 +234,7 @@ public class Node {
 		ArrayList<String> replies = new ArrayList<>();
 		for(hopcount=1;hopcount<=16 && !file_received;hopcount=hopcount*2){
 			int time = 1000*hopcount;
-
+			
 			
 			//broadcast search request to all neighbours
 			for(String key: n.neighborlist.keySet()){
@@ -264,7 +266,7 @@ public class Node {
 				
 				}
 				
-			} catch (SocketException e) {
+			} catch (SocketTimeoutException e) {
 				//
 				System.out.println("Timer over");
 
@@ -357,6 +359,8 @@ class ListenHandler extends Thread {
 	}
 }
 
+
+//Node listener listening for requests on port 9000
 class ListenerService extends Thread {
 	Socket servSocket;
 	Node n;

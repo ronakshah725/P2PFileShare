@@ -1,4 +1,0 @@
-a	a.txt
-d	d.txt
-n	n.txt
-

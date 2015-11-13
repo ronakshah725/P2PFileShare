@@ -1,8 +1,0 @@
-n	n.txt
-k	k.txt
-e	e.txt
-
-d	d.txt
-i	i.txt
-a	a.txt
-

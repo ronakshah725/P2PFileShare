@@ -1,4 +1,0 @@
-p	p.txt
-p	p.txt
-i	i.txt
-
