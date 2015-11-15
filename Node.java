@@ -15,15 +15,32 @@ import java.util.Scanner;
 public class Node {
 	String id;
 	String host;
-	final int noOfNodes = 10;
+	final int noOfNodes = 2;
 	int port;
 	HashMap<String, String> neighborlist = new HashMap<String, String>();
 	HashMap<String, String> mylist = new HashMap<String, String>();
+	
+	public synchronized HashMap<String, String> getMylist() {
+		return mylist;
+	}
+
+	public synchronized void put(String key, String value) {
+		this.mylist.put(key, value);
+	}
+	
+	public synchronized String printList(HashMap<String, String> list){
+		
+		return list.toString();
+		
+	}
+
+
+
 	int basePort = 9000;
 	int replyPort = 9002;
 	static Scanner sc;
 	boolean joined = false;
-	private boolean terminate;
+	private boolean terminate = false;
 	ServerSocket s;
 	String replies = "";
 
@@ -124,22 +141,47 @@ public class Node {
 				search(me);
 				break;
 			case "2":
-				// terminate function
-				me.setTerminate(true);
-				postTerminate(me);
-				asking = false;
-				System.out.println("Terminating");
+				int nodes = 0;
+				Reader r = new Reader("active.txt");
+				
+					while (r.readFile.readLine() != null) {
+						nodes++;
+					}
+					r.readFile.close();
+					
+					System.out.println("Number of lines:" +nodes);
+					
+					if (nodes==me.noOfNodes){
+						// terminate function
+						me.setTerminate(true);
+						
+						//check if all nodes up, then  only allow closing
+						postTerminate(me);
+						asking = false;
+						System.out.println("Terminating");
+
+					}
+					else{
+						System.out.println("Cannot terminate, only " +nodes + " up");
+					}
+				
+				
+
 				break;
 			default:
 				break;
 			}
 		}
+		
+		System.out.println("GoodBye!!");
+		System.exit(0);
 	}
 
 	private static void postTerminate(Node me) throws IOException {
+		System.out.println("in post" + me.neighborlist + " size " + me.neighborlist.size());
 		if (me.neighborlist.size() == 1) {
-			me.neighborlist.clear();
-			me.s.close();
+		
+			
 		} else {
 			int number_of_neighbors = me.neighborlist.size();
 			Random r = new Random();
@@ -151,7 +193,7 @@ public class Node {
 			Protocol p = new Protocol("tr", mp);
 			new writingSocketThread(me, new_node_id, p).start();
 			// me.neighborlist.clear();
-			me.s.close();
+
 		}
 
 	}
@@ -160,7 +202,7 @@ public class Node {
 		boolean asking = true;
 		while (asking) {
 			System.out.println("Enter the mode which you want to do: 1.keyword 2. filename 3.close");
-			System.out.println(me.mylist);
+			System.out.println(me.printList(me.mylist));
 			String mode = sc.nextLine();
 			switch (mode) {
 			case "1":
@@ -169,7 +211,7 @@ public class Node {
 				String keyword = sc.nextLine();
 				if (me.mylist.get(keyword) != null) {
 					System.out.println("File already in the system");
-					break;
+				
 				} else {
 					System.out.println("In the request method for keyword");
 					me.replies = me.search_request(keyword, me);
@@ -185,10 +227,15 @@ public class Node {
 						Protocol p = new Protocol("gfr", new GetFileProtocol(inp, me.id, keyword, null));
 						//
 						new writingSocketThread(me, inp, p).start();
+						System.out.println("requesting file from " + inp);
 					}
-
-					break;
+					System.out.println("ending sr, list:"+me.printList(me.mylist));
+				
 				}
+
+				//clear replies for new search
+				me.replies="";
+				break;
 
 			case "2":
 				// search function by filename
@@ -215,6 +262,8 @@ public class Node {
 						//
 						new writingSocketThread(me, inp, p).start();
 					}
+					//clear replies for new search
+					me.replies="";
 					break;
 				}
 			case "3":
@@ -242,6 +291,7 @@ public class Node {
 		for (int i = 0; i < 3; i++) {
 			char filename = characters.charAt(new Random().nextInt(characters.length()));
 			initialList += filename + "\t" + filename + ".txt" + "\n";
+			
 			mylist.put(filename + "", filename + ".txt");
 			new Writer(id + "/" + filename + ".txt").write("dwbdkcw");
 		}
@@ -289,7 +339,9 @@ public class Node {
 					iis = new ObjectInputStream(socket.getInputStream());
 					a = (Protocol) iis.readObject();
 					if (a.type.contentEquals("rp")) {
+						
 						NewReplyProtocol rp = (NewReplyProtocol) a.o;
+						System.out.println("recieved following nrp on 9002:" + rp);
 						n.replies += rp.fslist + rp.sep;
 						System.out.println("fslist:" + rp.fslist);
 
@@ -385,16 +437,27 @@ class ListenerService extends Thread {
 	
 	
 	//I-REQUEST
-	public static void on_receive(Node n, SendRequestProtocol p) {
+	public static void on_receive(Node n, SendRequestProtocol p) throws UnknownHostException, IOException {
 		orig_ip = p.originator_ip;
 		inter_ip = p.intermediate_ip;
 		File f = new File(n.id + "/" + p.kwd + ".txt");
 
 		// check if the file exists locally
 		if (f.exists()) {
-			NewReplyProtocol nrp = new NewReplyProtocol(n.id, p.originator_ip);
+			System.out.println("found file locally ");
+			String file_src = n.id;
+			NewReplyProtocol nrp = new NewReplyProtocol(file_src, p.originator_ip);
+			System.out.println(nrp);
 			Protocol pr = new Protocol("rp", nrp);
-			new writingSocketThread(n, p.intermediate_ip.id, pr).start();
+
+			//reply on 9002
+			Socket dstSocket = new Socket(n.getHostName(p.intermediate_ip.id), n.replyPort);
+			ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
+			oos.writeObject(pr);
+			dstSocket.close();
+			
+			//file exists locally, do not do any forwarding of replies
+			return;
 		}
 
 		int new_hopcount = p.hc;
@@ -426,6 +489,7 @@ class ListenerService extends Thread {
 					if (a.type.contentEquals("rp")) {
 						NewReplyProtocol rp = (NewReplyProtocol) a.o;
 						replies += rp.fslist + rp.sep;
+//						System.out.println("The replies are:" +replies);
 					}
 
 				}
@@ -468,7 +532,7 @@ class ListenerService extends Thread {
 
 			ObjectInputStream iis = new ObjectInputStream(servSocket.getInputStream());
 
-			while (true) {
+			while (!n.getTerminate()) {
 
 				Protocol msg = (Protocol) iis.readObject();
 				System.out.println("msg type recd : " + msg.type);
@@ -493,6 +557,7 @@ class ListenerService extends Thread {
 				if (msg.type.startsWith("sr")) {
 					//// HANDLE SEARCH REQUESTS
 					SendRequestProtocol sr = (SendRequestProtocol) msg.o;
+					System.out.println("keyword to search : " + sr.kwd);
 					on_receive(n, sr);
 				}
 
@@ -513,9 +578,10 @@ class ListenerService extends Thread {
 						// file not null means recieved the acxtual file add to
 						// directory and file list
 						new Writer(n.id + "/" + gfr.kwd + ".txt").write("dwbdkcw");
-						n.mylist.put(gfr.kwd, gfr.kwd + ".txt");
+						n.put(gfr.kwd, gfr.kwd + ".txt");
+						System.out.println("in gfr listener, list="+n.printList(n.mylist) );
 						new Writer(n.id + "/" + "fileList" + ".txt").write(gfr.kwd + "\t" + gfr.kwd + ".txt");
-
+						System.out.println("Recieved file : "+gfr.kwd + ".txt");
 					}
 				}
 

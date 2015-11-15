@@ -21,4 +21,9 @@ public class NewReplyProtocol implements Serializable {
     this.originator_ip= originator_ip;
         
     }
+    
+    @Override
+    public String toString() {
+    	return "NRP: FSLIST:" + fslist +", orig_ip: "+ originator_ip;
+    }
 }
