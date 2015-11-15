@@ -9,7 +9,7 @@ public class NewReplyProtocol implements Serializable {
     String fslist;
     HashMap<String, String> neighborlist;
     NodeDef originator_ip;
-    String sep = "sp";
+    String sep = "#";
     
     public NewReplyProtocol(String fslist, NodeDef originator_ip) {
         this.fslist = fslist;

@@ -1,0 +1,50 @@
+java Node 2
+2@dc02.utdallas.edu:9000
+In listener
+Make Neighbour : 1
+{1=dc01.utdallas.edu}
+Joined the System, Enter the operation?
+1.Search
+2.Terminate
+In listener
+msg type recd : gfr
+1
+Enter the mode which you want to do: 1.keyword 2. filename 3.close
+{f=f.txt, k=k.txt, o=o.txt}
+1
+Enter the keyword to search from a-p
+l
+In the request method for keyword
+In listener
+msg type recd : rp
+Timer over
+Closing Socket with hopcount 1
+
+In listener
+msg type recd : rp
+Timer over
+Closing Socket with hopcount 2
+
+In listener
+msg type recd : rp
+Timer over
+Closing Socket with hopcount 4
+
+In listener
+msg type recd : rp
+Timer over
+Closing Socket with hopcount 8
+
+In listener
+msg type recd : rp
+Timer over
+Closing Socket with hopcount 16
+
+Following Machines have the files :
+
+Enter id from where to get the file
+1
+Enter the mode which you want to do: 1.keyword 2. filename 3.close
+{f=f.txt, k=k.txt, o=o.txt}
+In listener
+msg type recd : gfr

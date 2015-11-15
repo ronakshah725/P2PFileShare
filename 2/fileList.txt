@@ -1,0 +1,8 @@
+j	j.txt
+a	a.txt
+j	j.txt
+
+j	j.txt
+o	o.txt
+k	k.txt
+

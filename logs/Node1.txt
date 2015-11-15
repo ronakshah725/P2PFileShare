@@ -1,0 +1,140 @@
+java Node 1
+1@dc01.utdallas.edu:9000
+Joined the System, Enter the operation?
+1.Search
+2.Terminate
+In listener
+In listener
+msg type recd : mn
+1
+Enter the mode which you want to do: 1.keyword 2. filename 3.close
+{p=p.txt, l=l.txt, o=o.txt}
+1
+Enter the keyword to search from a-p
+f
+In the request method for keyword
+In listener
+msg type recd : sr
+Timer over
+Closing Socket with hopcount 1
+
+In listener
+msg type recd : sr
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:382)
+	at java.net.ServerSocket.bind(ServerSocket.java:375)
+	at java.net.ServerSocket.<init>(ServerSocket.java:237)
+	at java.net.ServerSocket.<init>(ServerSocket.java:128)
+	at ListenerService.on_receive(Node.java:413)
+	at ListenerService.run(Node.java:489)
+Timer over
+Closing Socket with hopcount 2
+
+In listener
+msg type recd : sr
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:382)
+	at java.net.ServerSocket.bind(ServerSocket.java:375)
+	at java.net.ServerSocket.<init>(ServerSocket.java:237)
+	at java.net.ServerSocket.<init>(ServerSocket.java:128)
+	at ListenerService.on_receive(Node.java:413)
+	at ListenerService.run(Node.java:489)
+Timer over
+Closing Socket with hopcount 4
+
+In listener
+msg type recd : sr
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:382)
+	at java.net.ServerSocket.bind(ServerSocket.java:375)
+	at java.net.ServerSocket.<init>(ServerSocket.java:237)
+	at java.net.ServerSocket.<init>(ServerSocket.java:128)
+	at ListenerService.on_receive(Node.java:413)
+	at ListenerService.run(Node.java:489)
+Timer over
+Closing Socket with hopcount 8
+
+In listener
+msg type recd : sr
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:382)
+	at java.net.ServerSocket.bind(ServerSocket.java:375)
+	at java.net.ServerSocket.<init>(ServerSocket.java:237)
+	at java.net.ServerSocket.<init>(ServerSocket.java:128)
+	at ListenerService.on_receive(Node.java:413)
+	at ListenerService.run(Node.java:489)
+Timer over
+Closing Socket with hopcount 16
+
+Following Machines have the files :
+
+Enter id from where to get the file
+2
+Enter the mode which you want to do: 1.keyword 2. filename 3.close
+{p=p.txt, l=l.txt, o=o.txt}
+In listener
+msg type recd : gfr
+In listener
+msg type recd : sr
+In listener
+msg type recd : sr
+In listener
+msg type recd : sr
+In listener
+msg type recd : rp
+Timer over
+Closing Socket with hopcount 1
+In listener
+msg type recd : sr
+In listener
+msg type recd : sr
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:382)
+	at java.net.ServerSocket.bind(ServerSocket.java:375)
+	at java.net.ServerSocket.<init>(ServerSocket.java:237)
+	at java.net.ServerSocket.<init>(ServerSocket.java:128)
+	at ListenerService.on_receive(Node.java:413)
+	at ListenerService.run(Node.java:489)
+In listener
+msg type recd : rp
+Timer over
+Closing Socket with hopcount 3
+In listener
+msg type recd : sr
+In listener
+msg type recd : sr
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:382)
+	at java.net.ServerSocket.bind(ServerSocket.java:375)
+	at java.net.ServerSocket.<init>(ServerSocket.java:237)
+	at java.net.ServerSocket.<init>(ServerSocket.java:128)
+	at ListenerService.on_receive(Node.java:413)
+	at ListenerService.run(Node.java:489)
+In listener
+msg type recd : rp
+Timer over
+Closing Socket with hopcount 7
+In listener
+msg type recd : sr
+In listener
+msg type recd : sr
+java.net.BindException: Address already in use
+	at java.net.PlainSocketImpl.socketBind(Native Method)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:382)
+	at java.net.ServerSocket.bind(ServerSocket.java:375)
+	at java.net.ServerSocket.<init>(ServerSocket.java:237)
+	at java.net.ServerSocket.<init>(ServerSocket.java:128)
+	at ListenerService.on_receive(Node.java:413)
+	at ListenerService.run(Node.java:489)
+In listener
+msg type recd : rp
+Timer over
+Closing Socket with hopcount 15
+In listener
+msg type recd : gfr

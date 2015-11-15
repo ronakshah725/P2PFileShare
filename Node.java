@@ -71,7 +71,7 @@ public class Node {
 			Reader rw = new Reader("active.txt");
 
 			int line_no = new Random().nextInt(c - 1);
-			System.out.println(line_no + "," + c);// last line is me
+//			System.out.println(line_no + "," + c);// last line is me
 			for (int i = 0; i < line_no; i++) {
 				rw.readFile.readLine();
 			}
@@ -119,13 +119,12 @@ public class Node {
 			switch (a) {
 			case "1":
 				//// search function
+				/////PENDING CLEAR OUT EVERYTHING
 				search(me);
 				break;
 			case "2":
 				// terminate function
 				me.setTerminate(true);
-				;
-				// PENDING
 				postTerminate(me);
 				asking = false;
 				System.out.println("Terminating");
@@ -173,6 +172,7 @@ public class Node {
 				} else {
 					System.out.println("In the request method for keyword");
 					me.replies = me.search_request(keyword, me);
+					System.out.println("Replies recd: " + me.replies);
 					if(me.replies!=null){
 						System.out.println("Following Machines have the files : ");
 						for (String string : me.replies.split("#")) {
@@ -201,6 +201,19 @@ public class Node {
 
 					System.out.println("in the method for filename ");
 					// PENDING request method
+					me.replies = me.search_request(fileKey, me);
+					if(me.replies!=null){
+						System.out.println("Following Machines(id) have the files : ");
+						for (String string : me.replies.split("#")) {
+							System.out.println(string);
+						}
+						System.out.println("Enter id from where to get the file");
+						String inp = sc.nextLine();
+	
+						Protocol p = new Protocol("gfr", new GetFileProtocol(inp, me.id, fileKey, null));
+						//
+						new writingSocketThread(me, inp, p).start();
+					}
 					break;
 				}
 			case "3":
@@ -237,23 +250,26 @@ public class Node {
 	public void makeNeighbour(Node n, String id) {
 
 		// tell neighbour to add me in neighbourlist
-		Protocol p = new Protocol("mn", id);
+		Protocol p = new Protocol("mn", n.id);
 		new writingSocketThread(n, id, p).start();
 	}
-
+	
+	
+	
+	// U-REQUEST
 	public String search_request(String keyword, Node n) {
 		int hopcount;
 		boolean file_received = false;
 		for (hopcount = 1; hopcount <= 16 && !file_received; hopcount = hopcount * 2) {
-			int time = 1000 * hopcount;
+			int time = 2000 * hopcount;
 
 			// broadcast search request to all neighbours
 			for (String key : n.neighborlist.keySet()) {
-				String ip = n.neighborlist.get(key);
+
 				SendRequestProtocol p = new SendRequestProtocol(new NodeDef(n.id, n.host), new NodeDef(n.id, n.host),
 						keyword, hopcount, "");
 				Protocol mp = new Protocol("sr", p);
-				new writingSocketThread(n, ip, mp).start();
+				new writingSocketThread(n, key, mp).start();
 
 			}
 			// File request ORIGINATOR listens for replies
@@ -273,6 +289,7 @@ public class Node {
 					if (a.type.contentEquals("rp")) {
 						NewReplyProtocol rp = (NewReplyProtocol) a.o;
 						n.replies += rp.fslist + rp.sep;
+						System.out.println("fslist:" + rp.fslist);
 
 					}
 
@@ -298,15 +315,15 @@ public class Node {
 				e.printStackTrace();
 			}
 
-			System.out.println(replies);
-			if (!replies.isEmpty()) {
+			System.out.println("In hopcount "+ hopcount+"replies:"+n.replies);
+			if (!n.replies.isEmpty()) {
 				// filoe present on some machine, so stop looping on hopcount
 				file_received = true;
 
 			}
 
 		}
-		return replies;
+		return n.replies;
 
 	}
 
@@ -363,7 +380,9 @@ class ListenerService extends Thread {
 		this.n = n;
 		is = null;
 	}
-
+	
+	
+	//I-REQUEST
 	public static void on_receive(Node n, SendRequestProtocol p) {
 		orig_ip = p.originator_ip;
 		inter_ip = p.intermediate_ip;
@@ -383,11 +402,10 @@ class ListenerService extends Thread {
 			for (String key : n.neighborlist.keySet()) {
 				if (key.contentEquals(p.intermediate_ip.id))
 					continue;
-				String ip = n.neighborlist.get(key);
 				SendRequestProtocol r = new SendRequestProtocol(p.originator_ip, new NodeDef(n.id, n.host), p.kwd,
 						new_hopcount, "");
 				Protocol mp = new Protocol("sr", r);
-				new writingSocketThread(n, ip, mp).start();
+				new writingSocketThread(n, key, mp).start();
 
 			}
 			int time = 1000 * new_hopcount;
@@ -458,11 +476,14 @@ class ListenerService extends Thread {
 				//// "mn" recieved a request from other node to add IT as
 				//// neighbour
 				if (msg.type.startsWith("mn")) {
+					System.out.println("In make neighbour");
 					String neigh_id = (String) msg.o;
-
+					
 					// if not a neighbour already
 					if (!n.neighborlist.containsKey(neigh_id))
 						n.neighborlist.put(neigh_id, n.getHostName(neigh_id));
+					System.out.println(n.neighborlist);
+					
 				}
 
 				//// "sr" file search request
