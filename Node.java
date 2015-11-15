@@ -38,6 +38,7 @@ public class Node {
 		sc = new Scanner(System.in);
 
 	}
+	// this 
 
 	/// 9000 handle requests
 	/// 9002 handle replies
@@ -250,6 +251,7 @@ public class Node {
 	public void makeNeighbour(Node n, String id) {
 
 		// tell neighbour to add me in neighbourlist
+		// New changes
 		Protocol p = new Protocol("mn", n.id);
 		new writingSocketThread(n, id, p).start();
 	}
