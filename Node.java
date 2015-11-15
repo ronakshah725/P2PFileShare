@@ -329,7 +329,7 @@ public class Node {
 			ObjectInputStream iis;
 			try {
 
-				n.s = new ServerSocket(n.replyPort);
+				n.s = new ServerSocket(9003);
 				s.setSoTimeout(time);
 
 				while (true) {
@@ -341,7 +341,7 @@ public class Node {
 					if (a.type.contentEquals("rp")) {
 						
 						NewReplyProtocol rp = (NewReplyProtocol) a.o;
-						System.out.println("recieved following nrp on 9002:" + rp);
+						System.out.println("recieved following nrp on 9003:" + rp);
 						n.replies += rp.fslist + rp.sep;
 						System.out.println("fslist:" + rp.fslist);
 
@@ -451,12 +451,18 @@ class ListenerService extends Thread {
 			Protocol pr = new Protocol("rp", nrp);
 
 			//reply on 9002
-			Socket dstSocket = new Socket(n.getHostName(p.intermediate_ip.id), n.replyPort);
-			ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
-			oos.writeObject(pr);
-			dstSocket.close();
-			
-			//file exists locally, do not do any forwarding of replies
+            Socket dstSocket;
+            if(inter_ip.id.contentEquals(orig_ip.id)){
+                dstSocket = new Socket(n.getHostName(p.originator_ip.id), 9003);
+            }else {
+                dstSocket = new Socket(n.getHostName(p.intermediate_ip.id), n.replyPort);
+            }
+            
+            ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
+            oos.writeObject(pr);
+            dstSocket.close();
+            
+            //file exists locally, do not do any forwarding of replies
 			return;
 		}
 
@@ -499,16 +505,21 @@ class ListenerService extends Thread {
 				System.out.println("Timer over");
 
 				try {
-					System.out.println("Closing Socket with hopcount " + new_hopcount);
-
-					// forward
-					NewReplyProtocol sendReply = new NewReplyProtocol(replies, orig_ip);
-					Protocol wp = new Protocol("rp", sendReply);
-					Socket dstSocket = new Socket(n.getHostName(inter_ip.id), n.replyPort);
-					ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
-					oos.writeObject(wp);
-					dstSocket.close();
-					s.close();
+	                   System.out.println("Closing Socket with hopcount " + new_hopcount);
+	                    Socket dstSocket;
+	                    // forward
+	                    NewReplyProtocol sendReply = new NewReplyProtocol(replies, orig_ip);
+	                    Protocol wp = new Protocol("rp", sendReply);
+	                    if(inter_ip.id.contentEquals(orig_ip.id)){
+	                        dstSocket = new Socket(n.getHostName(p.originator_ip.id), 9003);
+	                    }else {
+	                        dstSocket = new Socket(n.getHostName(p.intermediate_ip .id), n.replyPort);
+	                    }
+	                    //Socket dstSocket = new Socket(n.getHostName(inter_ip.id), n.replyPort);
+	                    ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
+	                    oos.writeObject(wp);
+	                    dstSocket.close();
+	                    s.close();
 				} catch (IOException e1) {
 
 					e1.printStackTrace();
