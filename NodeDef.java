@@ -4,6 +4,7 @@
 import java.io.Serializable;
 
 
+@SuppressWarnings("serial")
 public class NodeDef implements Serializable {
  String id;
 	String host;

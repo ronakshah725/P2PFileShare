@@ -10,9 +10,6 @@ public class Client {
   
 	public static void main(String args[]){
 		
-
-		int i =1;
-		int j=2;
 		for (int j2 = 0; j2 < 3; j2++) {
 			
 			new Thread(new Runnable() {
@@ -23,9 +20,9 @@ public class Client {
 					Socket s;
 					try {
 						System.out.println("Running thread ");
-						s = new Socket(InetAddress.getLocalHost(),9000);
+						s = new Socket(InetAddress.getLocalHost(),8000);
 						PrintWriter p = new PrintWriter(s.getOutputStream(), true);
-					    p.println(i+ "value");  
+					    p.println("value");  
 					} catch (UnknownHostException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
