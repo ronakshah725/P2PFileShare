@@ -329,7 +329,7 @@ public class Node {
 			ObjectInputStream iis;
 			try {
 
-				n.s = new ServerSocket(9003);
+				n.s = new ServerSocket(n.replyPort);
 				s.setSoTimeout(time);
 
 				while (true) {
@@ -341,7 +341,7 @@ public class Node {
 					if (a.type.contentEquals("rp")) {
 						
 						NewReplyProtocol rp = (NewReplyProtocol) a.o;
-						System.out.println("recieved following nrp on 9003: from "+socket.getInetAddress().getHostName() + rp );
+						System.out.println("recieved following nrp on 9002: from "+socket.getInetAddress().getHostName() + rp );
 						if(!rp.fslist.isEmpty()){
 							n.replies += rp.fslist + rp.sep;
 							System.out.println("fslist:" + rp.fslist);
@@ -451,14 +451,8 @@ class ListenerService extends Thread {
 			System.out.println(nrp);
 			Protocol pr = new Protocol("rp", nrp);
 
-			//reply on 9003
-            Socket dstSocket;
-            if(inter_ip.id.contentEquals(orig_ip.id)){
-                dstSocket = new Socket(n.getHostName(p.originator_ip.id), 9003);
-            }else {
-                dstSocket = new Socket(n.getHostName(p.intermediate_ip.id), n.replyPort);
-            }
-            
+			//reply on 9002
+            Socket dstSocket = new Socket(n.getHostName(p.intermediate_ip.id), n.replyPort);
             ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
             oos.writeObject(pr);
             dstSocket.close();
@@ -508,16 +502,12 @@ class ListenerService extends Thread {
 
 				try {
 	                   System.out.println("Closing Socket with hopcount " + new_hopcount);
-	                    Socket dstSocket;
+	                    
 	                    // forward
 	                    NewReplyProtocol sendReply = new NewReplyProtocol(replies, orig_ip);
 	                    Protocol wp = new Protocol("rp", sendReply);
-	                    if(inter_ip.id.contentEquals(orig_ip.id)){
-	                        dstSocket = new Socket(n.getHostName(p.originator_ip.id), 9003);
-	                    }else {
-	                        dstSocket = new Socket(n.getHostName(p.intermediate_ip .id), n.replyPort);
-	                    }
-	                    //Socket dstSocket = new Socket(n.getHostName(inter_ip.id), n.replyPort);
+	                    
+	                    Socket dstSocket = new Socket(n.getHostName(inter_ip.id), n.replyPort);
 	                    ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
 	                    oos.writeObject(wp);
 	                    dstSocket.close();
