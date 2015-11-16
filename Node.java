@@ -17,7 +17,7 @@ import java.util.Scanner;
 public class Node {
 	String id;
 	String host;
-	final int noOfNodes = 2;
+	final int noOfNodes = 4;
 	int port;
 	HashMap<String, String> neighborlist = new HashMap<String, String>();
 	HashMap<String, String> mylist = new HashMap<String, String>();
@@ -308,7 +308,7 @@ public class Node {
 		boolean file_received = false;
 		for (hopcount = 1; hopcount <= 16 && !file_received; hopcount = hopcount * 2) {
 			
-			int time = 1000 * hopcount;
+			int time = 4000 * hopcount;
 
 			// broadcast search request to all neighbours
 			for (String key : n.neighborlist.keySet()) {
@@ -325,10 +325,10 @@ public class Node {
 			try {
 
 				n.s = new ServerSocket(n.replyPort);
-				s.setSoTimeout(time);
+				n.s.setSoTimeout(time);
 
 				while (true) {
-					Socket socket = s.accept();
+					Socket socket = n.s.accept();
 
 					Protocol a;
 					iis = new ObjectInputStream(socket.getInputStream());
@@ -436,21 +436,18 @@ class ListenerService extends Thread {
 
 		// check if the file exists locally
 		if (f.exists()) {
-			System.out.println("FOUND FILE " + p.kwd);
+			System.out.println("FOUND FILE with hc = " + p.hc);
 			HashSet<String> fs = new HashSet<>(); 
 			fs.add(n.id);
 			
-			//SEND-REPLY
-			NewReplyProtocol nrp = new NewReplyProtocol(fs, p.originator_ip);
-			Protocol pr = new Protocol("rp", nrp);
-//			Thread.sleep(2000);
-			//reply on 9002
+			//SEND-REPLY to intermediary node
 			Socket dstSocket = new Socket(n.getHostName(p.intermediate_ip.id), n.replyPort);
 			ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
+			NewReplyProtocol nrp = new NewReplyProtocol(fs, p.originator_ip);
+			Protocol pr = new Protocol("rp", nrp);
 			oos.writeObject(pr);
+			oos.close();
 			dstSocket.close();
-
-			//file exists locally, do not do any forwarding of replies
 			return;
 		}
 
@@ -458,7 +455,7 @@ class ListenerService extends Thread {
 		new_hopcount--;
 		if (new_hopcount > 0) {
 			// finding all the neighbors in neighborlist for broadcast
-			System.out.println("In I-REQUEST with hpc" + new_hopcount);
+			System.out.println("Couldnt find locally, forwarding to neighbours with new hpc" + new_hopcount);
 			for (String key : n.neighborlist.keySet()) {
 				if (key.contentEquals(p.intermediate_ip.id))
 					continue;
@@ -466,18 +463,19 @@ class ListenerService extends Thread {
 						new_hopcount, "");
 				Protocol mp = new Protocol("sr", r);
 				new writingSocketThread(n, key, mp).start();
-
 			}
-			int time = 1000 * new_hopcount;
+			
+			
+			int time = 500 * new_hopcount;
 			ObjectInputStream iis;
 
 			try {
 				System.out.println("Intermediate node listening");
 				s = new ServerSocket(n.replyPort);
 				s.setSoTimeout(time);
-
+				Socket socket;
 				while (true) {
-					Socket socket = s.accept();
+					socket= s.accept();
 
 					Protocol a;
 					iis = new ObjectInputStream(socket.getInputStream());
@@ -489,38 +487,18 @@ class ListenerService extends Thread {
 						else{
 							//union of all the replies
 							replies.addAll(rp.fslist);
+							break;
 						}
 
 					}
 
 				}
+				iis.close();
+				socket.close();
 			} 
 			catch (SocketTimeoutException e) {
-					//
 					System.out.println("Timer over");
-
-					try {
-						System.out.println("Closing with hopcount " + new_hopcount);
-
-						// forward
-						//SEND-REPLY
-						if(!replies.isEmpty()){
-							System.out.println("Replies recd:"+replies);
-							NewReplyProtocol sendReply = new NewReplyProtocol(replies, orig_ip);
-							Protocol wp = new Protocol("rp", sendReply);
-	
-							Socket dstSocket = new Socket(n.getHostName(inter_ip.id), n.replyPort);
-							ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
-							oos.writeObject(wp);
-							dstSocket.close();
-	
-							s.close();
-						}
-
-					} catch (IOException e1) {
-
-						e1.printStackTrace();
-					}
+					
 
 				} catch (IOException e) {
 
@@ -529,6 +507,25 @@ class ListenerService extends Thread {
 
 					e.printStackTrace();
 				}
+			finally{
+				System.out.println("Closing with hopcount " + new_hopcount);
+
+				// forward
+				//SEND-REPLY
+				if(!replies.isEmpty()){
+					System.out.println("Replies recd:"+replies);
+					try(Socket dstSocket= new Socket(n.getHostName(inter_ip.id), n.replyPort)){
+						NewReplyProtocol sendReply = new NewReplyProtocol(replies, orig_ip);
+						Protocol wp = new Protocol("rp", sendReply);
+						ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
+						oos.writeObject(wp);
+						dstSocket.close();	
+					}
+					
+				}
+				s.close();
+			}
+			
 
 		}
 
@@ -569,7 +566,7 @@ class ListenerService extends Thread {
 					SendRequestProtocol sr = (SendRequestProtocol) msg.o;
 					System.out.println("keyword to search : " + sr.kwd);
 					
-					synchronized (o) {
+					synchronized (ListenerService.class) {
 						on_receive(n, sr);	
 					}
 				

@@ -5,10 +5,23 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashSet;
 
 public class Client {
   
 	public static void main(String args[]){
+		
+		HashSet<String> a =  new HashSet<>();
+		a.add("a");
+		a.add("b");
+		a.add("c");
+		
+		HashSet<String> b=  new HashSet<>();
+		b.add("d");
+		b.add("c");
+		
+		b.addAll(a);
+		System.out.println(b);
 		
 		for (int j2 = 0; j2 < 3; j2++) {
 			
