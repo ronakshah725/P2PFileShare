@@ -313,7 +313,7 @@ public class Node {
 		int hopcount;
 		boolean file_received = false;
 		for (hopcount = 1; hopcount <= 16 && !file_received; hopcount = hopcount * 2) {
-			int time = 2000 * hopcount;
+			int time = 4000 * hopcount;
 
 			// broadcast search request to all neighbours
 			for (String key : n.neighborlist.keySet()) {
@@ -341,10 +341,11 @@ public class Node {
 					if (a.type.contentEquals("rp")) {
 						
 						NewReplyProtocol rp = (NewReplyProtocol) a.o;
-						System.out.println("recieved following nrp on 9003:" + rp);
-						n.replies += rp.fslist + rp.sep;
-						System.out.println("fslist:" + rp.fslist);
-
+						System.out.println("recieved following nrp on 9003: from "+socket.getInetAddress().getHostName() + rp );
+						if(!rp.fslist.isEmpty()){
+							n.replies += rp.fslist + rp.sep;
+							System.out.println("fslist:" + rp.fslist);
+						}
 					}
 
 				}
@@ -450,7 +451,7 @@ class ListenerService extends Thread {
 			System.out.println(nrp);
 			Protocol pr = new Protocol("rp", nrp);
 
-			//reply on 9002
+			//reply on 9003
             Socket dstSocket;
             if(inter_ip.id.contentEquals(orig_ip.id)){
                 dstSocket = new Socket(n.getHostName(p.originator_ip.id), 9003);
@@ -470,6 +471,7 @@ class ListenerService extends Thread {
 		new_hopcount--;
 		if (new_hopcount > 0) {
 			// finding all the neighbors in neighborlist for broadcast
+			System.out.println("In I-REQUEST with hpc" + new_hopcount);
 			for (String key : n.neighborlist.keySet()) {
 				if (key.contentEquals(p.intermediate_ip.id))
 					continue;
@@ -479,7 +481,7 @@ class ListenerService extends Thread {
 				new writingSocketThread(n, key, mp).start();
 
 			}
-			int time = 1000 * new_hopcount;
+			int time = 4000 * new_hopcount;
 			ObjectInputStream iis;
 
 			try {
