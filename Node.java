@@ -178,6 +178,7 @@ public class Node {
 		System.exit(0);
 	}
 
+//comment
 	private static void postTerminate(Node me) throws IOException {
 		System.out.println("in post" + me.neighborlist + " size " + me.neighborlist.size());
 		if (me.neighborlist.size() == 1) {
