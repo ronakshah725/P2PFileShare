@@ -38,8 +38,8 @@ public class Node {
 
 
 
-	int basePort = 9000;
-	int replyPort = 9002;
+	int basePort = 8000;
+	int replyPort = 8002;
 	static Scanner sc;
 	boolean joined = false;
 	private boolean terminate = false;
@@ -307,7 +307,7 @@ public class Node {
 		boolean file_received = false;
 		for (hopcount = 1; hopcount <= 16 && !file_received; hopcount = hopcount * 2) {
 			
-			int time = 4000 * hopcount;
+			int time = 1000 * hopcount;
 
 			// broadcast search request to all neighbours
 			for (String key : n.neighborlist.keySet()) {
@@ -395,11 +395,13 @@ class ListenHandler extends Thread {
 			}
 			System.out.println("Listeners closed");
 		} catch (IOException e) {
+			e.printStackTrace();
 
 		} finally {
 			try {
 				listener.close();
 			} catch (IOException e) {
+				e.printStackTrace();
 
 			}
 		}
@@ -414,14 +416,14 @@ class ListenerService extends Thread {
 	BufferedReader is;
 	static NodeDef orig_ip, inter_ip;
 	static ServerSocket s;
-	static HashSet<String> replies ;
+	static HashSet<String> replies= new HashSet<>(); ;
 	static Object o =  new Object();
 
 	public ListenerService(Socket csocket, Node n) {
 		this.servSocket = csocket;
 		this.n = n;
 		is = null;
-		replies = new HashSet<>();
+
 	}
 
 
@@ -440,7 +442,7 @@ class ListenerService extends Thread {
 			//SEND-REPLY
 			NewReplyProtocol nrp = new NewReplyProtocol(fs, p.originator_ip);
 			Protocol pr = new Protocol("rp", nrp);
-			Thread.sleep(2000);
+//			Thread.sleep(2000);
 			//reply on 9002
 			Socket dstSocket = new Socket(n.getHostName(p.intermediate_ip.id), n.replyPort);
 			ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
@@ -465,7 +467,7 @@ class ListenerService extends Thread {
 				new writingSocketThread(n, key, mp).start();
 
 			}
-			int time = 4000 * new_hopcount;
+			int time = 1000 * new_hopcount;
 			ObjectInputStream iis;
 
 			try {

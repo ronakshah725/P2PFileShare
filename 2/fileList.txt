@@ -6,3 +6,11 @@ j	j.txt
 o	o.txt
 k	k.txt
 
+l	l.txt
+l	l.txt
+p	p.txt
+
+c	c.txt
+c	c.txt
+l	l.txt
+
