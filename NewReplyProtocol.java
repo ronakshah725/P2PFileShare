@@ -19,10 +19,9 @@ public class NewReplyProtocol implements Serializable {
     
     
     
-    public NewReplyProtocol(HashMap<String, String> neighborlist, NodeDef originator_ip) {
+    public NewReplyProtocol(HashMap<String, String> neighborlist) {
     this.neighborlist = neighborlist;
-    this.originator_ip= originator_ip;
-        
+      
     }
     
 

@@ -38,8 +38,8 @@ public class Node {
 
 
 
-	int basePort = 8000;
-	int replyPort = 8002;
+	int basePort = 7000;
+	int replyPort = 7002;
 	static Scanner sc;
 	boolean joined = false;
 	private boolean terminate = false;
@@ -180,21 +180,42 @@ public class Node {
 
 //comment
 	private static void postTerminate(Node me) throws IOException {
+		for (String id:me.neighborlist.keySet()){
+			
+			Protocol p = new Protocol("end",me.id);
+			try(Socket dsocket = new Socket(me.getHostName(id), me.port)){
+			ObjectOutputStream oos = new ObjectOutputStream(dsocket.getOutputStream());
+			oos.writeObject(p);
+			dsocket.close();
+
+			// me.neighborlist.clear();
+			}
+		}
 		System.out.println("in post" + me.neighborlist + " size " + me.neighborlist.size());
 		if (me.neighborlist.size() == 1) {
 
 
 		} else {
-			int number_of_neighbors = me.neighborlist.size();
-			Random r = new Random();
-			int node_id = r.nextInt(number_of_neighbors);
-			String new_node_id = node_id + "";
-			HashMap<String, String> updated_neighbors = me.neighborlist;
-			updated_neighbors.remove(new_node_id);
-			NewReplyProtocol mp = new NewReplyProtocol(updated_neighbors, new NodeDef(me.id, me.host));
+
+			int node_id = getrandom(1,me.neighborlist.size());
+			
+			String new_node_id =  Integer.toString (node_id);
+			System.out.println("Node to assign neigbours:" + new_node_id + " ,");
+			//ronak-final
+			//HashMap<String, String> updated_neighbors = me.neighborlist;
+			//updated_neighbors.remove(new_node_id);
+			me.neighborlist.remove(new_node_id);
+			System.out.println(me.neighborlist);
+			NewReplyProtocol mp = new NewReplyProtocol(me.neighborlist);
 			Protocol p = new Protocol("tr", mp);
-			new writingSocketThread(me, new_node_id, p).start();
+			
+			try(Socket dstSocket = new Socket(me.getHostName(new_node_id), me.port)){
+			ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
+			oos.writeObject(p);
+			dstSocket.close();
+
 			// me.neighborlist.clear();
+			}
 
 		}
 
@@ -531,7 +552,7 @@ class ListenerService extends Thread {
 
 	}
 
-	@SuppressWarnings("unused")
+
 	public void run() {
 		try {
 
@@ -596,16 +617,25 @@ class ListenerService extends Thread {
 					}
 				}
 
-				//// "tr" post terminate make neighbour requests
 				if (msg.type.startsWith("tr")) {
 
 					NewReplyProtocol trm = (NewReplyProtocol) msg.o;
-					HashMap<String, String> correct_list = trm.neighborlist;
-					for (String node : correct_list.keySet()) {
-						n.neighborlist.put(node, n.getHostName(node));
-						n.makeNeighbour(n, node);
-					}
+					System.out.println("in tr, recd mn list : " +  trm.neighborlist);
 
+					for (String node : trm.neighborlist.keySet()) {
+						if(!n.neighborlist.containsKey(node)){
+							
+							n.neighborlist.put(node, n.getHostName(node));
+							System.out.println("make neighbour : " + node);
+							n.makeNeighbour(n, node);
+						}
+					}
+					System.out.println("New neighbourlist:" + n.neighborlist);
+
+				}
+				
+				if (msg.type.startsWith("end")) {
+					n.neighborlist.remove((String)msg.o);
 				}
 
 			}
