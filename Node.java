@@ -21,6 +21,8 @@ public class Node {
 	int port;
 	HashMap<String, String> neighborlist = new HashMap<String, String>();
 	HashMap<String, String> mylist = new HashMap<String, String>();
+	long before;
+	long after;
 
 	public synchronized HashMap<String, String> getMylist() {
 		return mylist;
@@ -101,7 +103,7 @@ public class Node {
 
 		} catch (IOException e) {
 
-			e.printStackTrace();
+			
 			return null;
 		}
 	}
@@ -227,7 +229,7 @@ public class Node {
 				System.out.println("Following Machines have the files : ");
 				Iterator<String> it = fslist.iterator();
 			    while(it.hasNext()){
-			        System.out.println(it.next());
+			        System.out.println(me.getHostName(it.next()) + "\t"+" Elapsed Search Time : " + (me.after-me.before)/3600 + " seconds");
 			     }
 
 				System.out.println("Enter id from where to get the file");
@@ -257,7 +259,9 @@ public class Node {
 					System.out.println("File already in the system");
 
 				} else {
+					me.before = System.currentTimeMillis();
 					me.replies = me.search_request(keyword, me);
+					me.after = System.currentTimeMillis();
 					getFile(me.replies, me, keyword);
 					
 				}
@@ -274,7 +278,9 @@ public class Node {
 					System.out.println("File already in the system");
 					break;
 				} else {
+					me.before = System.currentTimeMillis();
 					me.replies = me.search_request(fileKey, me);
+					me.after = System.currentTimeMillis();
 					getFile(me.replies, me, fileKey);
 
 					//clear replies for new search
@@ -327,6 +333,7 @@ public class Node {
 	public HashSet<String> search_request(String keyword, Node n) {
 		int hopcount;
 		boolean file_received = false;
+		n.before = System.currentTimeMillis();
 		for (hopcount = 1; hopcount <= 16 && !file_received; hopcount = hopcount * 2) {
 			
 			int time = 4000 * hopcount;
@@ -374,11 +381,11 @@ public class Node {
 					n.s.close();
 				} catch (IOException e1) {
 
-					e1.printStackTrace();
+
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				
 			} 
 
 			System.out.println("In hopcount "+ hopcount+"replies:"+n.replies);
@@ -417,13 +424,13 @@ class ListenHandler extends Thread {
 			}
 			System.out.println("Listeners closed");
 		} catch (IOException e) {
-			e.printStackTrace();
+			
 
 		} finally {
 			try {
 				listener.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				
 
 			}
 		}
@@ -457,7 +464,7 @@ class ListenerService extends Thread {
 
 		// check if the file exists locally
 		if (f.exists()) {
-			System.out.println("FOUND FILE with hc = " + p.hc);
+			System.out.println	("FOUND FILE with hc = " + (p.hc+1));
 			HashSet<String> fs = new HashSet<>(); 
 			fs.add(n.id);
 			
@@ -523,10 +530,10 @@ class ListenerService extends Thread {
 
 				} catch (IOException e) {
 
-					e.printStackTrace();
+					
 				} catch (ClassNotFoundException e) {
 
-					e.printStackTrace();
+					
 				}
 			finally{
 				System.out.println("Closing with hopcount " + new_hopcount);
@@ -541,6 +548,7 @@ class ListenerService extends Thread {
 						ObjectOutputStream oos = new ObjectOutputStream(dstSocket.getOutputStream());
 						oos.writeObject(wp);
 						dstSocket.close();	
+						n.replies.clear();
 					}
 					
 				}
@@ -644,7 +652,7 @@ class ListenerService extends Thread {
 
 		} catch (InterruptedException e) {
 		
-			e.printStackTrace();
+			
 		} finally {
 			try {
 				servSocket.close();

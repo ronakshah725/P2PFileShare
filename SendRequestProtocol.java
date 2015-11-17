@@ -19,13 +19,7 @@ public class SendRequestProtocol implements Serializable {
 		this.hc = hpcnt;
 		this.type = type;
 	}
-/*
-public String toString(){
-	
-	return "ID:"+ id+", " +"TimeStamp:" + ts+ ", " +"Type:"+ type + "\n" ;
-//	return "ID:"+ id+", " +"TimeStamp:" + ts+ ", " +"Type:"+ type + "\n"  ;
-}
-*/	
+
 
 }
 
