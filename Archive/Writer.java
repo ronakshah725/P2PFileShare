@@ -1,11 +1,12 @@
-package Base;
 
 
 
 
-import java.io.*;
-import java.sql.Timestamp;
-import java.util.Date;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +35,7 @@ public class Writer {
           writer= new BufferedWriter(new FileWriter(file, true));
          
        
-          writer.append("\n"+msg);
+          writer.append(msg+"\n");
 
           writer.close();
       }
